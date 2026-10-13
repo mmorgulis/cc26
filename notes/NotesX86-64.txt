@@ -1,0 +1,38 @@
+The X86-64 has 16 general purpose registers
+Program counter = Register RIP
+Little-endian byte order (= the lsb is the first byte)
+
+REGISTERS:
+In general first of all we have to do:
+pushq %rbp
+and at the end:
+popq %rbp
+It's necessary for callee-saved registry (%rb0, %rbx, %r12 ... %r15), 
+but not for the caller-saved ones %rax, %rcx, %rdx, %rsi, %rdi, %r8, ... %r11.
+That's because it's expected that a function will change the caller registers, but not the callee ones.
+When you do "pushq %rbp" the machine does two things:
+1) subtract 8 bytes from the registry %rsp (stack pointer) 
+2) copies the content in $rsp 
+Note: the stack pointer points always to the last element inserted to the memory
+Important: the functions always store the return value in $rax
+We will stay with the unix name so (rax, rbx ....), and not the intel ones (eax, ebx ...)
+rax -> accumulate
+rbx -> base 
+rcx -> counter
+rdx -> data
+rsi -> source index
+rdi -> destination index
+rsp -> stack pointer
+rbp -> base pointer
+
+INSTRUCTIONS:
+The most used instruction is the: 
+movq Source, Dest (copy the 64 bytes in source into dest), the operands can be:
+immediates/costants
+registers 
+memory es. (%rax) = similar to deferencing operator in C "*"
+You can use k(%rax) to move the address by the offset = k + *rax
+You can computer address in other ways:
+(rb, ri) = rb + ri
+d(rb, ri) = rb + ri + d
+(rb, ri, s) = rb + s * ri
