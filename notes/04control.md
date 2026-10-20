@@ -7,7 +7,7 @@ Compiler Construction --- lecture 4
 ## Roadmap
 
 ### Where we left off
-
+19/10/2026 (prima parte)  
 So far we have: integer arithmetic, straight-line code.
 
 ![](control-pipeline.svg)
@@ -192,7 +192,7 @@ jmp  block_else
 ```
 -->
 
-Conflating them costs three instructions:
+Conflating them costs three instructions (costano tre istuzioni inutili):
 
 ```att
 cmpq   b, a
@@ -216,6 +216,7 @@ e1 or  e2   ==>   True if e1 else e2
 ```
 
 `shrink` rewrites them up front; downstream only ever sees `IfExp`.
+In Pascal non esiste la possibilità di fare nest di op logiche, ma nel nostro caso sì, e il compilatore può tradurlo.
 
 ## remove_complex_operands
 
@@ -265,7 +266,7 @@ The operand of `not`, almost the same:
 print((input_int() + 1) if x > 0 else 0)
 ```
 
-The body needs a temporary for `input_int()`. \
+The body needs a temporary for `input_int()`. L'input dovrebbe essere assegnata/eseguita solo se so il valore del condizionale. 
 
 Hoisted out of the
 branch, we would read a number even when the condition is false.
@@ -343,7 +344,7 @@ An `if` whose condition is itself an `if` --- where does the branch for
 `x < 1` jump to?
 
 ### The naive translation
-
+Soluzione sub-ottima.  
 Each comparison and each `if` in isolation:
 
 ```att
@@ -368,6 +369,7 @@ The comparison must sit **immediately before** the jump that uses it.
 
 ### Reorganising trees is not the solution
 
+Anche questa non è una soluzione ottima.  
 One way to achieve this goal is to reorganize the code at the level of LIf , pushing
 the outer if inside the inner one, yielding the following code:
 ```
