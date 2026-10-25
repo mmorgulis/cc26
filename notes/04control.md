@@ -1051,6 +1051,9 @@ main:                      block.2:
 - Branches make liveness a **dataflow** problem: reverse topological
   order while acyclic, **fixpoint iteration** once there are loops.
 
+## Administrivia
+
+No lecture on Nov 2
 
 ## Questions?
 

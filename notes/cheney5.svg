@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="811" height="378" viewBox="0 0 811 378" role="img" aria-label="scanning (3, _) forwards to the (True, 42) already in the queue; every pointer now resolves inside ToSpace, and scan has caught up with free -- the algorithm is done">
+
+  <style>
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #16181d; }
+      .cell rect { fill: #272c34; stroke: #8b95a3; }
+      .cell text, .dot { fill: #e4e8ee; }
+      .arrow line, .arrow path { stroke: #8b95a3; }
+      .arrow polygon { fill: #8b95a3; }
+      .tuple-border { stroke: #8b95a3; }
+      .label { fill: #9aa3b0; }
+    }
+  </style>
+<rect class="bg" x="0" y="0" width="811" height="378" fill="#ffffff"/>
+<g class="cell">
+<rect x="31.2" y="103.0" width="62.4" height="62.4" fill="#f0f0f0" stroke="#7d7d7d" stroke-width="1.5"/>
+<circle class="dot" cx="62.4" cy="134.2" r="16.2" fill="#1c1f24"/>
+<rect x="93.6" y="103.0" width="62.4" height="62.4" fill="#f0f0f0" stroke="#7d7d7d" stroke-width="1.5"/>
+<circle class="dot" cx="124.8" cy="134.2" r="16.2" fill="#1c1f24"/>
+</g>
+<g class="cell">
+<rect x="156.0" y="103.0" width="62.4" height="62.4" fill="#f0f0f0" stroke="#7d7d7d" stroke-width="1.5"/>
+<text x="187.2" y="142.1" text-anchor="middle" font-family="ui-monospace, 'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="24.0" fill="#1c1f24">7</text>
+<rect x="218.4" y="103.0" width="62.4" height="62.4" fill="#f0f0f0" stroke="#7d7d7d" stroke-width="1.5"/>
+<text x="249.6" y="142.1" text-anchor="middle" font-family="ui-monospace, 'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="24.0" fill="#1c1f24">5</text>
+<rect x="280.8" y="103.0" width="62.4" height="62.4" fill="#f0f0f0" stroke="#7d7d7d" stroke-width="1.5"/>
+<circle class="dot" cx="312.0" cy="134.2" r="16.2" fill="#1c1f24"/>
+</g>
+<g class="cell">
+<rect x="343.2" y="103.0" width="62.4" height="62.4" fill="#f0f0f0" stroke="#7d7d7d" stroke-width="1.5"/>
+<circle class="dot" cx="374.4" cy="134.2" r="16.2" fill="#1c1f24"/>
+<rect x="405.6" y="103.0" width="62.4" height="62.4" fill="#f0f0f0" stroke="#7d7d7d" stroke-width="1.5"/>
+<text x="436.8" y="142.1" text-anchor="middle" font-family="ui-monospace, 'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="24.0" fill="#1c1f24">4</text>
+</g>
+<g class="cell">
+<rect x="468.0" y="103.0" width="62.4" height="62.4" fill="#f0f0f0" stroke="#7d7d7d" stroke-width="1.5"/>
+<text x="499.2" y="139.9" text-anchor="middle" font-family="ui-monospace, 'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="17.3" fill="#1c1f24">True</text>
+<rect x="530.4" y="103.0" width="62.4" height="62.4" fill="#f0f0f0" stroke="#7d7d7d" stroke-width="1.5"/>
+<text x="561.6" y="139.9" text-anchor="middle" font-family="ui-monospace, 'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="17.3" fill="#1c1f24">42</text>
+</g>
+<g class="cell">
+<rect x="592.8" y="103.0" width="62.4" height="62.4" fill="#f0f0f0" stroke="#7d7d7d" stroke-width="1.5"/>
+<text x="624.0" y="142.1" text-anchor="middle" font-family="ui-monospace, 'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="24.0" fill="#1c1f24">3</text>
+<rect x="655.2" y="103.0" width="62.4" height="62.4" fill="#f0f0f0" stroke="#7d7d7d" stroke-width="1.5"/>
+<circle class="dot" cx="686.4" cy="134.2" r="16.2" fill="#1c1f24"/>
+</g>
+<g class="cell">
+<rect x="717.6" y="103.0" width="62.4" height="62.4" fill="#f0f0f0" stroke="#7d7d7d" stroke-width="1.5"/>
+<text x="748.8" y="142.1" text-anchor="middle" font-family="ui-monospace, 'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="24.0" fill="#1c1f24">8</text>
+</g>
+<line class="tuple-border" x1="156.0" y1="94.2" x2="156.0" y2="174.1" stroke="#7d7d7d" stroke-width="3.2" stroke-linecap="round"/>
+<line class="tuple-border" x1="343.2" y1="94.2" x2="343.2" y2="174.1" stroke="#7d7d7d" stroke-width="3.2" stroke-linecap="round"/>
+<line class="tuple-border" x1="468.0" y1="94.2" x2="468.0" y2="174.1" stroke="#7d7d7d" stroke-width="3.2" stroke-linecap="round"/>
+<line class="tuple-border" x1="592.8" y1="94.2" x2="592.8" y2="174.1" stroke="#7d7d7d" stroke-width="3.2" stroke-linecap="round"/>
+<line class="tuple-border" x1="717.6" y1="94.2" x2="717.6" y2="174.1" stroke="#7d7d7d" stroke-width="3.2" stroke-linecap="round"/>
+<g class="arrow"><path d="M 62.4 150.4 Q 124.8 210.3 172.0 176.3" fill="none" stroke="#7d7d7d" stroke-width="1.5"/><polygon points="187.2,165.4 179.3,186.4 164.7,166.2" fill="#7d7d7d"/></g>
+<g class="arrow"><path d="M 124.8 150.4 Q 312.0 237.7 481.7 172.1" fill="none" stroke="#7d7d7d" stroke-width="1.5"/><polygon points="499.2,165.4 486.2,183.8 477.2,160.5" fill="#7d7d7d"/></g>
+<g class="arrow"><path d="M 312.0 150.4 Q 468.0 230.9 606.7 172.6" fill="none" stroke="#7d7d7d" stroke-width="1.5"/><polygon points="624.0,165.4 611.6,184.1 601.9,161.1" fill="#7d7d7d"/></g>
+<g class="arrow"><path d="M 374.4 150.4 Q 561.6 237.7 731.3 172.1" fill="none" stroke="#7d7d7d" stroke-width="1.5"/><polygon points="748.8,165.4 735.8,183.8 726.8,160.5" fill="#7d7d7d"/></g>
+<g class="arrow"><path d="M 686.4 150.4 Q 592.8 217.2 515.6 174.4" fill="none" stroke="#7d7d7d" stroke-width="1.5"/><polygon points="499.2,165.4 521.6,163.5 509.5,185.3" fill="#7d7d7d"/></g>
+<g class="arrow"><line x1="766.3" y1="221.5" x2="766.3" y2="184.1" stroke="#7d7d7d" stroke-width="1.5"/><polygon points="766.3,165.4 778.8,184.1 753.8,184.1" fill="#7d7d7d"/></g>
+<text class="label" x="766.3" y="261.5" text-anchor="end" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="21.6" fill="#5f6874">scan</text>
+<text class="label" x="766.3" y="297.6" text-anchor="end" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="21.6" fill="#5f6874">pointer</text>
+<g class="arrow"><line x1="793.7" y1="221.5" x2="793.7" y2="184.1" stroke="#7d7d7d" stroke-width="1.5"/><polygon points="793.7,165.4 806.2,184.1 781.2,184.1" fill="#7d7d7d"/></g>
+<text class="label" x="793.7" y="339.5" text-anchor="end" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="21.6" fill="#5f6874">free</text>
+<text class="label" x="793.7" y="375.6" text-anchor="end" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="21.6" fill="#5f6874">pointer</text>
+</svg>
