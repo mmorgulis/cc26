@@ -405,7 +405,7 @@ In our code: `CProgram(body: dict[str, list[stmt]])`; `Goto` and
 `Begin` from `cif.py`, the rest from Python's `ast`.
 
 ### Graphs  of blocks, not instruction trees
-
+26/10/2026  
 The example becomes:
 
 ```
@@ -549,7 +549,7 @@ x = input_int()
 print(42 if x == 1 else 0)
 ```
 
-after `shrink` and RCO:
+after `shrink` (non fa nulla qui in realtà) and RCO (crea la var temp _1):
 
 ```python
 x = input_int()
@@ -557,7 +557,7 @@ _1 = 42 if x == 1 else 0
 print(_1)
 ```
 
-after `explicate_control`:
+after `explicate_control` (= trasforma l'if nei goto = jumps), block0 è alla fine perchè viene creato prima (appunto si chiama 0):
 
 ```
 main_start:                 block.1:
@@ -618,7 +618,7 @@ else:
     print(0)
 ```
 
-`shrink` turns the test into
+`shrink` turns the test into (vedi esercitazione del 22 oct)
 
 ```python
 x < 10 if x > 0 else False
@@ -646,7 +646,7 @@ both failure paths;<br/>
 evaluation ensured by `shrink` plus `explicate_pred`.
 
 ## select_instructions
-
+Il prossimo step è ritranslarlo a x86, abbiamo 2 problemi, il primo è la nuova istruzione e la seconda è la questione dei blocchi.  
 Instead of a single block, a program is now a dictionary mapping labels to single blocks.
 
 Instruction selection will have to run for every block in this dict, yielding a labelled block of assembly.
@@ -739,10 +739,11 @@ block.0:                                             block.0:
                                                          jmp main_conclusion
 ```
 
-Two variables left to place; the shape is already x86.
+Two variables left to place; the shape is already x86.  
+Quindi in realtà select_instruction è abbastanza facile, basta applicare le regole sopra. 
 
 ## Register allocation with branches
-
+Il graph-colouring rimane uguale, ma cambia l'allocazione sui i registri.
 ### The single-block sweep is not enough
 
 Last lecture: one block, one backward pass, `L_after(n) = {}`.
@@ -758,7 +759,7 @@ set.
 
 Two questions:
 
-1. In which order do we process the blocks?
+1. In which order do we process the blocks? Non possiamo dire semplicemente come prima partiamo dalla fine. 
 2. What are the read and write sets of `jmp` and `j<cc>`?
 
 ### The control-flow graph
@@ -790,7 +791,7 @@ The way we generate code, a `j<cc>` is always followed by a `jmp`<br/>
 - `main_start` liveset depends on `block.1` and `block.2`;
 - these two in turn depend on `block.0`
 
-This suggests the following order:
+This suggests the following order (qui facile, sempre parto dalla fine e arrivo all'inizio):
 
 - `block.0`
 - `block.1` and `block.2` in any order
@@ -813,7 +814,7 @@ from a successor **block**:
 L_after(jmp L)   = live_before_block[L]
 L_after(j<cc> L) = live_before_block[L] U L_before(next)
 ```
-
+Ovviamente la jump conserva lo scoop delle variabili, quindi le variabili live all'inizio di un blocco sono quelle della fine del blocco precedente.  
 - `j<cc>` may go either way: assume both, take the **union**.
 
 <!--
@@ -849,7 +850,8 @@ L_after(cmpq $1, x) = live_before_block[block.1] U live_before_block[block.2]
 - A jump's contribution is its live-after set (i.e. live-before of its target block), not `R`.
 - The flags are not a location we allocate, so they never appear ---
   never split a `cmpq`/`set<cc>` or `cmpq/j<cc>` pair.
-- `%al` is a part of `%rax`
+- `%al` is a part of `%rax`  
+Nota: xorq lo uso alcune volte per trasformare alcune operazioni non triviali.
 
 ### Prelude and conclusion with blocks
 
@@ -909,6 +911,7 @@ go?
 while i - 1 > 0:
     ...
 ```
+Se fosse un if i - 1 < 0... trasformo i - 1 in rco in una var temporale t_1. Invece nei loop non posso farlo perchè dovrei ricomputare t_1 ogni volta.
 
 In front of the loop, `i - 1` would be computed once --- for the first
 test only.<br/>
@@ -940,7 +943,7 @@ at all.
 
 One novelty: the loop's label
 must exist **before** the body is compiled,<br/> because the body jumps
-back to it (and vice versa). Generate labels first, fill content later.
+back to it (and vice versa). Generate labels first, fill content later. (prima devo creare una label per il loop perchè mi serve per compilare il body)
 
 ### The cycle
 
@@ -1190,7 +1193,7 @@ Working out the details is left as an exercise
 
 ### Summary
 
-- Two ways to compile a comparison: for its **value**, or for a
+- Two ways to compile a comparison: for its **value** (tipo x = 42 if x > 1 else 0 (credo?)), or for a
   **branch**. Preferring the second is what `explicate_control` is
   *for*.
 - `shrink` removes forms the target lacks (`and`, `or`), not forms it
