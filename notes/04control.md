@@ -1138,7 +1138,7 @@ after:                      { sum }       {}
     movq sum, %rdi          {}            {}
     callq print_int         {}            {}
     movq $0, %rax           {}            {}
-    jmp main_conclusion     
+    jmp main_conclusion
 ```
 
 ```
@@ -1154,24 +1154,26 @@ In this example only the start block has nontrivial kill-set but this will not a
 
 ### A more contrived example
 
-
 ```python
-# for i in range(1,n): for j in range(i,0,-1): print(j)
+# n = input_int(); i = 1
+# while i*i < n:
+#   for j in range(i, 0, -1): print(j)
+#   i = i + 1
 start:
     n = input_int()
+    i = 1
     goto loop1
 
 loop1:
-    if i<n goto body1 else after1
+    tmp = i * i
+    if i<n: goto body1 else: goto after1
 
 body1:
-    k = i + 5
-    print(k)
     j = i
     goto loop2
 
 loop2:
-    if j>0 goto body2 else after2
+    if j>0: goto body2 else: goto after2
 
 body2:
     print(j)
@@ -1188,7 +1190,7 @@ after1:
 
 Failure to notice that *j* is killed in *body1* would lead to false conclusion that it is live in *start*
 and interferes with *k*.
-
+<br/>
 Working out the details is left as an exercise
 
 ### Summary
