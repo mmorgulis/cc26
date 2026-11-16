@@ -25,7 +25,8 @@ t = 40, True, (2,)
 print(t[0] + t[2][0] if t[1] else 44)
 ```
 
-tuple construction, element access, `is`, `len`.
+tuple construction, element access, `is`, `len`.   
+Ci servirà il type checker, python controlla i tipi runtime, ma dato che stiamo scrivendo un compilatore non lo faremo runtime in quanto è molto inefficiente.  
 
 
 Concrete syntax, on top of **Lfun**:
@@ -46,7 +47,7 @@ Compare(exp, [Is()], [exp])
 ```
 
 ### What is actually new
-
+Le tuple non possono vivere nei registri (tecnicamente quelle piccole magari in realtà sì), quindi dobbiamo allocarle nello heap.  
 Not the syntax. The *lifetime*.
 
 ```python
@@ -62,7 +63,11 @@ print(t[0])
 
 A tuple cannot live in the frame, so it lives on the **heap**<br/>
 --- and nothing in the language deletes it. From the programmer's viewpoint
-tuples live forever.
+tuples live forever.  
+Posso gestire la mem in 3 modi:  
+- lisp (haskell ...), java way (con garbage collector) -> metodo più antico iniziato con lisp che useremo anche noi
+- c/c++ free e malloc (prob mem leaks)
+- rust, zig
 
 ### Two consequences
 
@@ -99,7 +104,7 @@ Even though tuples look like arrays, there are more like structures<br/>
 
 In the basic version **tuples are immutable**
 
-- allows to test using CPython `t[0] = x` is not Python.
+- allows to test using CPython `t[0] = x` is not Python (perchè ci serve CPython?).
 - makes garbage collection easier
 
 Mutability is an extension (requires a dedicated interpeter to test).
@@ -110,16 +115,16 @@ Mutability is an extension (requires a dedicated interpeter to test).
 
 Which tuples will be used again? Undecidable.
 
-So collectors ar conservative: keep everything that *can* be reached.
+So collectors are conservative: keep everything that *can* be reached.
 
 - the **root set** --- every tuple address in a register or on the
   stack;
 - the **live objects** --- everything reachable from the root set.
 
 Everything else is garbage. Some garbage survives a collection; no
-live object is ever reclaimed.
-
-### Reference counting
+live object is ever reclaimed.  
+Quando viene usato il gc? Quando siamo quasi out of memory, quindi in quel momento potrebbe impiegarci un po' (si possono fare dei tentativi per non farlo all'ultimo (es. parallel garbage collector))
+### Reference counting (altro possibile approccio)
 
 -  Every object maintains the count of references to itself.
 -  Every reference assignment modifies relevant counters; when the counter reaches 0 --- the object is released.
