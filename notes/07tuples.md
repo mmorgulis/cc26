@@ -14,11 +14,13 @@ So far we have covered: integers, booleans, control flow, registers,
 functions.
 
 Every value so far fits in a register, and every value's lifetime is
-known statically --- a variable dies at the end of the block that
+known statically<br/>
+--- a variable dies at the end of the block that
 last reads it, a frame dies when its function returns.
 
 ### Lvec - what we are adding
-(In the book, you will notice **Ltup**, but our language has functions).
+(In the book, you will notice **Ltup**, but our language has functions ---
+hence **Lvec** to avoid confusion).
 
 ```python
 t = 40, True, (2,)
@@ -46,20 +48,22 @@ Call(Name('len'), [exp])
 Compare(exp, [Is()], [exp])
 ```
 
+We will see that *len* is not really a function call, but it uses the call syntax
+
 ### What is actually new
 Le tuple non possono vivere nei registri (tecnicamente quelle piccole magari in realtà sì), quindi dobbiamo allocarle nello heap.  
 Not the syntax. The *lifetime*.
 
 ```python
 def f():
-    x = 42, 43
+    x = (42, 43)
     return x
     
 t = f()
 print(t[0])
 ```
 
-`x` goes out of scope when `f` returns. The tuple does not.
+`x` goes out of scope when `f` returns. The tuple lives on.
 
 A tuple cannot live in the frame, so it lives on the **heap**<br/>
 --- and nothing in the language deletes it. From the programmer's viewpoint
@@ -71,13 +75,14 @@ Posso gestire la mem in 3 modi:
 
 ### Two consequences
 
-1. **The heap needs reclaiming.** Long-running programs would run out
-   of memory. Nobody says when to free, so the *runtime* must decide:
+1. **The heap needs reclaiming.**<br/>
+    Long-running programs would run out of memory.<br/>
+    Nobody says when to free, so the *runtime* must decide:
    garbage collection.
 
-2. **The collector must know what is a pointer.** It has to be
-   able to look at a machine word and know whether following it is
-   sensible. That is a demand the collector makes on the *compiler*.
+2. **The collector must know what is a pointer.**<br/>
+    It has to be  able to look at a machine word and know whether it makes sense to follow it.<br/>
+    That is a demand the collector makes on the *compiler*.
 
 We will talk about garbage collection in a moment.
 
@@ -85,29 +90,29 @@ We will talk about garbage collection in a moment.
 
 ![](tuple-pipeline.svg)
 
-One new pass, one new prerequisite, and changes in the back end
-concentrated where homes are chosen.
+One new pass (`expose_allocation`), one new prerequisite (typechecker); changes in the back end
+where homes are chosen.
 
 ## The language
 
 
 ### Are tuples arrays? Structures?
 
-Even though tuples look like arrays, there are more like structures<br/>
-(with fields numbered rather then named)
+Even though tuples look like arrays, they are more like structures<br/>
+(with fields numbered rather than named)
 
-- **the index is a constant.** `t[i]` for a computed `i` is out: the
-  offset has to be known at compile time, and so does the element's
-  *type*;
+- **elements can have different types** e.g. `(False, 1,(2,3),(4,))`
+- **the index is a constant.**<br/>
+    `t[i]` for a computed `i` is out: the element's type and hence its offset have to be known at compile time;
 - **at most 50 elements**, because that is how wide the pointer mask used for GC
-  will be;
+  will be.
 
-In the basic version **tuples are immutable**
+In the basic version **tuples are immutable**:
 
 - allows to test using CPython `t[0] = x` is not Python (perchè ci serve CPython?).
 - makes garbage collection easier
 
-Mutability is an extension (requires a dedicated interpeter to test).
+Mutability is optional (requires a dedicated interpreter to test).
 
 ## Garbage collection
 
@@ -136,10 +141,24 @@ Quando viene usato il gc? Quando siamo quasi out of memory, quindi in quel momen
 
 **Disadvantages:**
 
-  -  time and memory overhead (a couple of memory writes for every assignment)
+  -  time and memory overhead (memory writes at every assignment)
   -  unreachable cyclic structures (e.g. two-way lists) may remain undetected
 
-Sometimes used in connection with other methods  (e.g. in Python).
+CPython does this --- `sys.getrefcount(x)` reads the counter --- and
+adds a cycle detector
+
+```python
+>>> x = (6,7)
+>>> y = x
+>>> sys.getrefcount(x)
+3
+>>> sys.getrefcount(y)
+3
+>>> x = 1
+>>> sys.getrefcount(y)
+2
+
+```
 
 ### Two-space copying
 
@@ -149,27 +168,32 @@ The heap is two halves: **FromSpace** and **ToSpace**.
 - when it will not fit, copy every live object to the ToSpace and
   swap the names.
 
-Cost is proportional to the *live* data, not to the garbage.
-Allocation is three instructions.<br/>
+Cost is proportional to the *live* data, not to the garbage.<br/>
+Allocation is very cheap (no *malloc* etc).<br/>
 Compaction is free --- a side
 effect of copying.
 
-OTOH half of the memory is "wasted", but we will see how it can be improved.
+Half of the memory is "wasted" --- we will see shortly how that can be
+improved.
 
 ### Before a collection
 
 ![](copy-collect-before.svg)
 
-Six tuples reachable from the root set; four are not --- including a
-**cycle**, a pair that point at each other.
+Ten tuples; three roots --- a register and two stack slots.
+
+Which of the ten survive a collection?
+
+
+**Note:** this is a general picture of GC; in our approach we will have a dedicated pointer stack.
 
 ### After a collection
 
 ![](copy-collect-after.svg)
 
-The six copied to ToSpace, pointers and all; the roots now lead there.
-
-FromSpace --- live or garbage, no longer distinguishable --- goes unread.
+Six --- copied pointers and all, the roots now lead to ToSpace. The four
+others, the **cycle** among them, were never visited. FromSpace --- live
+or garbage, no longer distinguishable --- goes unread.
 
 ### Cheney's algorithm
 
@@ -185,59 +209,7 @@ Two pointers into the ToSpace: **free** (back of the queue) and
 
 No auxiliary stack or queue --- the copied data *is* the queue.
 
-### Before a collection
-
-![](copy-collect-before.svg)
-
-Three roots: `r1->(p1,p2)` `r2->(7,5,p3)` `r3->(p4,4);  start by copying tuples referenced by them to ToSpace.
-
-They form the initial queue; now step through the queue, following the pointers and copying objects they reference.
-
-
-### Cheney's algorithm, step by step
-
-![](cheney1.svg)
-
-pointers in the queue may still point to the FromSpace step through the queue, following the pointers.
-
-### Processing the pair
-
-![](cheney2.svg)
-
-The first pair points to `p1=(7,5,p3)` and `p2=(True, 42)`
-
-- p1 has been already copied (pointed to by a root)
-- p2 is copied to the queue, advancing free pointer
-- advance the scan pointer
-
-Note: we process the queue one tuple at a time 
-
-### Processing `p1=(7, 5, p3)` and `p2=(True,42)`
-
-`p3` points to `(3,p2)` - copying to the queue
-
-
-`(True, 42)` holds no pointers, so scanning it next does
-nothing --- `scan` just walks past it.
-
-![](cheney3.svg)
-
-### Processing `(p4, 4)`
-
-![](cheney4.svg)
-
-`p4 = (8,)` - copying
-
-### Done
-
-The pointer in `(3, p2)` forwards to `(True, 42)`, already in the queue.
-
-`(8,)` contains no pointers - advancing `scan`
-
-Every pointer now resolves inside ToSpace, and `scan` has caught up
-with `free`.
-
-![](cheney5.svg)
+All of it is Cheney (1970) --- a paper two pages long.
 
 ### Forwarding pointers
 
@@ -256,7 +228,83 @@ later at the old address follows it instead of copying again.
 That also makes cycles safe. A well-typed program in our language cannot build one,
 but the collector handles them anyway. 
 
+### Cheney: the starting position
+
+![](copy-collect-before.svg)
+
+Three roots: `r1 -> (p1, p2)`, `r2 -> (7, 5, p3)`, `r3 -> (p4, 4)`.
+The tuples they reference, copied to ToSpace, form the initial queue;
+now step through it, following pointers and copying what they reach.
+
+
+### Cheney's algorithm, step by step
+
+![](cheney1.svg)
+
+Pointers in the queue may still point into FromSpace. Step through the
+queue, following them.
+
+### Processing the pair
+
+![](cheney2.svg)
+
+The first pair points to `p1=(7,5,p3)` and `p2=(True, 42)`
+
+- `p1` has already been copied --- its forwarding pointer says so
+- `p2` is copied to the queue, advancing the *free* pointer
+- advance the *scan* pointer --- one tuple at a time
+
+### Processing `p1=(7, 5, p3)` and `p2=(True,42)`
+
+`p1`'s element `p3` points to `(3, p2)` --- copied to the queue.
+
+`(True, 42)` holds no pointers, so scanning it next does
+nothing --- `scan` just walks past it.
+
+![](cheney3.svg)
+
+### Processing `(p4, 4)`
+
+![](cheney4.svg)
+
+`p4 = (8,)` is copied to the queue.
+
+### Done
+
+The pointer in `(3, p2)` forwards to `(True, 42)`, already in the queue.
+
+`(8,)` contains no pointers - advancing `scan`
+
+Every pointer now resolves inside ToSpace, and `scan` has caught up
+with `free`.
+
+![](cheney5.svg)
+
+### Generational garbage collection
+Ungar (1984), measuring real programs:
+
+- most objects die young
+- if an object survives T , it will likely live long
+- new objects contain pointers to old ones more often than conversely
+
+**Idea** (Lieberman & Hewitt, 1983):
+
+- A “nursery” for young objects with copying GC
+(minor collection)
+- The nursery is small and contains mostly garbage
+(objects die young)
+- If the copying GC leaves too little space, move objects to “mature” space
+
+Needs special treatment of pointers from old to young objects.
+(not a problem if objects are immutable)
+
 ## Data representation
+
+The collector itself is part of the runtime (`support/runtime-full.c`)
+
+Our task is to provide compiler support for it.
+
+A big part of it is data representatiuon enabling recognising pointers.
 
 ### Telling pointers from integers
 
@@ -276,7 +324,7 @@ We also make sure registers contain no pointers at GC time.
 Note:
 
 - (3) is arguably the finest solution, but also the most difficult (GHC uses it)
-- (4) is often fine with some approaches, but not applicable with the copying GC (in general all with all pointer-altering ones).
+- (4) fails once the collector *moves* objects, as ours does.
 
 ### The tag
 
@@ -301,8 +349,7 @@ tag = 1 | (len << 1) | (mask << 7)
 ```
 
 `tuple[int]` has tag `3` (no pointers: `1 | (1 << 1)`);
-
-`tuple[tuple[int]]` gives `131`. (128 indicates pointer at position 0)
+`tuple[tuple[int]]` gives `131` (128: a pointer at position 0).
 
 ### The root stack
 
@@ -321,6 +368,23 @@ Rules:
 
 Then the collector's job is easy: walk the root stack, and inside each
 tuple follow the mask.
+
+### The two stacks
+
+``` python
+def foo(n: int, i: int) -> int:
+  a = 0; b = 1;
+  while(i < n):
+    t = (a, b)
+    u = (b, a + b)
+    a = u[0]; b = u[1]
+    i = i + 1
+```
+
+![](root-stack.svg)
+
+The collector walks the root stack, and inside each tuple it reaches,
+follows the mask. It never reads the frame.
 
 ### The runtime interface
 
@@ -346,13 +410,13 @@ Between collections the compiler allocates by itself, by moving
 
 ### Why we need a type checker now
 
-The tag needs a pointer mask: *which elements of this tuple are
+The tag contains a pointer mask: *which elements of this tuple are
 pointers*;<br/>
 the register allocator needs to know *which variables are
-tuple-typed* (becausee they are spilled to the root-stack)
+tuple-typed* (because they are spilled to the root-stack)
 
 Neither question can be answered by looking at the value at runtime<br/>
-(we are not tagging integers - that would be cumbersome and inefficient)<br>
+(we are not tagging integers --- that would be cumbersome and inefficient)<br>
 Both are questions about **types**.
 
 We need a small type checker: `int`, `bool`, `tuple[...]`, `Callable[...]` (for functions).<br/>
@@ -360,7 +424,7 @@ No type inference is needed as types of all function parameters are declared.
 
 Note that tuples without GC can be implemented without a type checker
 --- there is no need for root stack then.<br/>
-It is nice to have anyway - avoid things like `x = 1; print(x[2])`
+It is nice to have anyway --- avoid things like `x = 1; print(x[2])`
 
 ### Expose allocation and *Lalloc*
 
@@ -374,7 +438,7 @@ stmt ::= Collect(int) | Assign([Subscript(exp,int,Store())], exp)
 - `Allocate` handles memory allocation;
 - `Collect` is called when a GC is needed;
 - `GlobalValue(name)` reads the value of a global variable, such as `free_ptr`
-- `Begin(stmt*, exp)` (introduce temporary variables) - we have already seen when discussong conditionals;
+- `Begin(stmt*, exp)` (introduce temporary variables) - we have already seen it when discussing conditionals;
 
 We also add a nanopass handling the translation: `expose_allocation`.
 
@@ -409,16 +473,18 @@ where *bytes* is `8 * (n + 1)` --- the elements plus the tag.
 
 Four things are happening, in an order that is not negotiable:
 
-1. **evaluate the elements first.** Any of them may allocate, and so
-   may collect. 
+1. **evaluate the elements first.** Any of them may allocate, and may trigger GC.
 2. **ask whether there is room**, and call `collect` if not. 
 3. **allocate** --- reserve the space, write the tag.
 4. **initialise** the elements.
 
 
-Initializing `e0, ..., e(n-1)` before *allocate* is important.<br/>
+Evaluating `e0, ..., e(n-1)` before `allocate` is important.<br/>
+
 An allocated but uninitialised tuple must never be
 visible to the collector --- it might follow imaginary "pointers" in it.
+
+We could make `allocate` zero-out the allocated memory  but that would be just extra memory writes.
 
 
 ### select_instructions: allocate and collect
@@ -444,6 +510,8 @@ collect(bytes)
     callq collect
 ```
 
+Note: `collect` in **Lalloc** has one argument, in the runtime it has two.
+
 ### select_instructions: element access
 
 Both are one `movq` through a base register, with `+1` to step over
@@ -460,6 +528,32 @@ tup[n] = rhs
     movq tup, %r11
     movq rhs, d(%r11)      # d = 8*(n+1)
 ```
+
+<!--
+### One tuple, end to end
+ FIXME
+ 
+```python
+t = (42,)
+print(t[0])
+```
+
+```att
+    movq $42, %rcx                  # the element, evaluated first
+    movq free_ptr(%rip), %r11
+    addq $16, free_ptr(%rip)        # 8 * (1 + 1)
+    movq $3, 0(%r11)                # the tag: 1 | (1 << 1)
+    movq %r11, %rdx                 # t = allocate(1, tuple[int])
+    movq %rdx, %r11
+    movq %rcx, 8(%r11)              # t[0] = 42
+    movq %rdx, %rcx
+    movq %rcx, %r11
+    movq 8(%r11), %rcx              # t[0]
+    movq %rcx, %rdi
+    callq print_int
+```
+
+-->
 
 ### Why %r11, and not %rax
 
@@ -511,7 +605,9 @@ Add these to prelude and conclusion of every function
 ```
 
 Initialising root stack slots is necessary to prevent GC from following phantom "pointers"
-that may remain there.
+that may remain there: whatever the previous function left in the slot,
+`collect` would chase it as an address --- and copy "a tuple" out of
+garbage memory, or crash.
 
 The root stack grows **up**; a function's slots are below the pointer
 it hands to `collect`.
@@ -519,31 +615,13 @@ it hands to `collect`.
 `main` does two things more in the prelude:
 
 ```att
-    movq $65536, %rdi                  # rootstack size
-    movq $65536, %rsi                  # heap size
-    callq initialize                   # sets rootstack_begin and free_ptr
+    movq $65536, %rdi            # rootstack size
+    movq $65536, %rsi            # heap size
+    callq initialize             # sets rootstack_begin and free_ptr
     movq rootstack_begin(%rip), %r15
 ```
 
-### Generational garbage collection
-Hewitt, 1987:
-
-- most objects die young
-- if an object survives T , it will likely live long
-- new objects contain pointers to old ones more often than conversely
-
-**Idea:**
-
-- A “nursery” for young objects with copying GC
-(minor collection)
-- The nursery is small and contains mostly garbage
-(objects die young)
-- If the copying GC leaves too little space, move objects to “mature” space
-
-Needs special treatment of pointers from old to young objects.
-(not a problem if objects are immutable)
-
-## Mutability?
+## What about mutability?
 ### Aliasing
 
 ```python
@@ -570,9 +648,9 @@ The collector gets more than that.
 
 - **The heap graph is acyclic**, and in creation order: an object can
   only point at objects that already existed.
-- **No old object ever points at a young one.** That is the whole
-  difficulty of generational collection, and immutability deletes it:
-  no write barrier, no remembered set.
+- **No old object ever points at a young one.**</br>
+    old-young pointers are big difficulty in  generational GC.
+
 
 
 ### What rules out cycles is the type system
@@ -584,12 +662,12 @@ tuple that contains itself (perhaps indirectly):
 t[0] = t
 ```
 
-and that needs `t : tuple[tuple[tuple[...]]]` --- an infinite type. A
-monomorphic type system cannot write it, so a well-typed program
+and that needs `t : tuple[tuple[tuple[...]]]` --- an infinite type.<br/>
+A monomorphic type system cannot write it, so a well-typed program
 cannot build a cycle whether tuples are mutable or not.
 
 Cycles arrive with **dynamic typing**. We use
-forwarding pointers and handle them anyway: in Cheney's algorithm it
+forwarding pointers to handle them anyway: in Cheney's algorithm it
 is free, and we do not need to revisit the collector.
 
 Cycles can also arrive with named types:
@@ -599,7 +677,8 @@ typ1 = tuple[int,typ2]
 typ2 = tuple[int,typ1]
 ```
 
-(requires that we can use the type name before definition)
+(requires that we can use the type name before definition).
+
 
 ## Wrapping up
 
@@ -623,6 +702,16 @@ typ2 = tuple[int,typ1]
 Next time: functions again --- as values, with tail calls that do not
 grow the stack, and with more than six arguments, which is what the
 tuples we just built were needed for.
+
+## Lab tasks
+
+Tuples are a second extension possible to implement (the first one was move biasing):
+
+- implement tuples with a simple bump allocator (no GC, panic when OOM) or use malloc --- **2p**
+- add a type checker
+- add root stack and spilling behaviour for tuples
+- integrate the GC provided in `runtime-full.c` --- additional **4p**, or
+- implement a reference counting scheme (**1p**) perhaps woth cycle detector (additional **1p**)
 
 ## Questions?
 

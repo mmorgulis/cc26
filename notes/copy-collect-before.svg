@@ -98,7 +98,7 @@
 <rect x="755.0" y="574.1" width="62.4" height="62.4" fill="#f0f0f0" stroke="#7d7d7d" stroke-width="1.5"/>
 <circle class="dot" cx="786.2" cy="605.3" r="16.2" fill="#1c1f24"/>
 </g>
-<g class="arrow"><line x1="147.3" y1="193.4" x2="304.5" y2="193.4" stroke="#7d7d7d" stroke-width="1.5"/><polygon points="324.5,193.4 304.5,207.2 304.5,179.7" fill="#7d7d7d"/></g>
+<g class="arrow"><line x1="147.3" y1="199.7" x2="304.5" y2="199.7" stroke="#7d7d7d" stroke-width="1.5"/><polygon points="324.5,199.7 304.5,213.4 304.5,186.0" fill="#7d7d7d"/></g>
 <g class="arrow"><line x1="83.3" y1="461.0" x2="306.5" y2="354.3" stroke="#7d7d7d" stroke-width="1.5"/><polygon points="324.5,345.6 312.4,366.6 300.5,341.9" fill="#7d7d7d"/></g>
 <g class="arrow"><line x1="84.6" y1="652.4" x2="304.8" y2="614.1" stroke="#7d7d7d" stroke-width="1.5"/><polygon points="324.5,610.7 307.2,627.7 302.5,600.6" fill="#7d7d7d"/></g>
 <g class="arrow"><line x1="355.7" y1="209.7" x2="355.7" y2="279.6" stroke="#7d7d7d" stroke-width="1.5"/><polygon points="355.7,299.5 342.0,279.6 369.4,279.6" fill="#7d7d7d"/></g>
@@ -107,6 +107,6 @@
 <g class="arrow"><line x1="620.0" y1="318.2" x2="556.1" y2="240.1" stroke="#7d7d7d" stroke-width="1.5"/><polygon points="543.4,224.6 566.7,231.4 545.5,248.8" fill="#7d7d7d"/></g>
 <g class="arrow"><line x1="355.7" y1="589.1" x2="355.7" y2="519.2" stroke="#7d7d7d" stroke-width="1.5"/><polygon points="355.7,499.2 369.4,519.2 342.0,519.2" fill="#7d7d7d"/></g>
 <g class="arrow"><line x1="499.2" y1="484.2" x2="499.2" y2="554.1" stroke="#7d7d7d" stroke-width="1.5"/><polygon points="499.2,574.1 485.5,554.1 512.9,554.1" fill="#7d7d7d"/></g>
-<g class="arrow"><line x1="731.3" y1="346.9" x2="731.3" y2="554.1" stroke="#7d7d7d" stroke-width="1.5"/><polygon points="731.3,574.1 717.6,554.1 745.1,554.1" fill="#7d7d7d"/></g>
+<g class="arrow"><line x1="717.6" y1="346.9" x2="717.6" y2="554.1" stroke="#7d7d7d" stroke-width="1.5"/><polygon points="717.6,574.1 703.9,554.1 731.3,554.1" fill="#7d7d7d"/></g>
 <g class="arrow"><line x1="789.9" y1="587.8" x2="743.0" y2="381.4" stroke="#7d7d7d" stroke-width="1.5"/><polygon points="738.6,361.9 756.4,378.3 729.6,384.4" fill="#7d7d7d"/></g>
 </svg>

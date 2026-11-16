@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1078" height="458" viewBox="0 0 1078 458" role="img" aria-label="the passes of the advanced-functions compiler: five new front-end passes ending in an Lvec program, which lecture 7's compiler handles unchanged except for leaq, indirect calls and tail jumps">
+
+  <style>
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #16181d; }
+      .node { fill: #e4e8ee; }
+      .label, .note, .data { fill: #9aa3b0; }
+      .arrow line { stroke: #8b95a3; }
+      .arrow polygon { fill: #8b95a3; }
+    }
+  </style>
+  <rect class="bg" x="0" y="0" width="1078" height="458" fill="#ffffff"/>
+  <text class="node" x="99.0" y="54.6" font-family="ui-monospace, 'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="30.0" font-weight="600" fill="#1c1f24" text-anchor="middle">Llambda</text>
+  <g class="arrow">
+    <line x1="99.0" y1="67.5" x2="99.0" y2="249.2" stroke="#7d7d7d" stroke-width="2.6"/>
+    <polygon points="91.2,249.2 106.8,249.2 99.0,271.7" fill="#7d7d7d"/>
+    <text class="label" x="120.0" y="99.3" font-family="ui-monospace, 'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="19.8" fill="#5f6874">shrink</text>
+    <text class="label" x="120.0" y="125.0" font-family="ui-monospace, 'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="19.8" fill="#5f6874">uniquify</text>
+    <text class="label" x="120.0" y="150.8" font-family="ui-monospace, 'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="19.8" fill="#5f6874">type_check</text>
+    <text class="note" x="265.8" y="150.8" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="18.6" font-style="italic" fill="#5f6874">(Callable[...] everywhere)</text>
+    <text class="label" x="120.0" y="176.5" font-family="ui-monospace, 'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="19.8" fill="#5f6874">reveal_functions</text>
+    <text class="note" x="337.1" y="176.5" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="18.6" font-style="italic" fill="#5f6874">(Name -&gt; FunRef)</text>
+    <text class="label" x="120.0" y="202.3" font-family="ui-monospace, 'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="19.8" fill="#5f6874">convert_assignments</text>
+    <text class="note" x="372.7" y="202.3" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="18.6" font-style="italic" fill="#5f6874">(mutated captures -&gt; boxes)</text>
+    <text class="label" x="120.0" y="228.0" font-family="ui-monospace, 'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="19.8" fill="#5f6874">convert_to_closures</text>
+    <text class="note" x="372.7" y="228.0" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="18.6" font-style="italic" fill="#5f6874">(lambda -&gt; def + a tuple)</text>
+    <text class="label" x="120.0" y="253.7" font-family="ui-monospace, 'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="19.8" fill="#5f6874">limit_functions</text>
+    <text class="note" x="325.2" y="253.7" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="18.6" font-style="italic" fill="#5f6874">(arguments 6.. -&gt; one tuple)</text>
+  </g>
+  <text class="node" x="99.0" y="299.3" font-family="ui-monospace, 'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="30.0" font-weight="600" fill="#1c1f24" text-anchor="middle">Lvec</text>
+  <text class="note" x="189.0" y="299.3" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="18.6" font-style="italic" fill="#5f6874">(no lambdas left -- closures are tuples)</text>
+  <g class="arrow">
+    <line x1="99.0" y1="312.2" x2="99.0" y2="367.7" stroke="#7d7d7d" stroke-width="2.6"/>
+    <polygon points="91.2,367.7 106.8,367.7 99.0,390.2" fill="#7d7d7d"/>
+    <text class="label" x="120.0" y="358.1" font-family="ui-monospace, 'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="19.8" fill="#5f6874">lecture 7's compiler</text>
+    <text class="note" x="384.6" y="358.1" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="18.6" font-style="italic" fill="#5f6874">(select_instructions adds leaq and callq *; a tail call becomes jmp)</text>
+  </g>
+  <text class="node" x="99.0" y="417.8" font-family="ui-monospace, 'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="30.0" font-weight="600" fill="#1c1f24" text-anchor="middle">x86</text>
+</svg>
