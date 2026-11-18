@@ -164,7 +164,7 @@ adds a cycle detector
 
 The heap is two halves: **FromSpace** and **ToSpace**.
 
-- allocate by bumping a pointer through the FromSpace;
+- allocate by bumping (spostare) a pointer through the FromSpace; (= allocazione di memoria spostando il puntatore e ottenendo un blocco contiguo)
 - when it will not fit, copy every live object to the ToSpace and
   swap the names.
 
@@ -173,8 +173,7 @@ Allocation is very cheap (no *malloc* etc).<br/>
 Compaction is free --- a side
 effect of copying.
 
-Half of the memory is "wasted" --- we will see shortly how that can be
-improved.
+Half of the memory is "wasted" --- we will see shortly how that can be improved (perchè l'algoritmo two-space copying divide la mem heap nelle due metà e una metà (all'inizio ToSpace ma poi si inverte) deve rimanere vuota aspettando la collection).
 
 ### Before a collection
 
@@ -281,7 +280,7 @@ with `free`.
 ![](cheney5.svg)
 
 ### Generational garbage collection
-Ungar (1984), measuring real programs:
+Ungar (1984), measuring real programs (osservazioni dal comportamento di primi linguaggi di programmazione ad oggetti tipo smalltalk):
 
 - most objects die young
 - if an object survives T , it will likely live long
@@ -290,10 +289,10 @@ Ungar (1984), measuring real programs:
 **Idea** (Lieberman & Hewitt, 1983):
 
 - A “nursery” for young objects with copying GC
-(minor collection)
+(minor collection) --> piccolo heap per contere oggetti che livono poco (perchè devo sprecare metà memoria)
 - The nursery is small and contains mostly garbage
 (objects die young)
-- If the copying GC leaves too little space, move objects to “mature” space
+- If the copying GC leaves too little space, move objects to “mature” space (il mature space non viene garbage collectato spesso)
 
 Needs special treatment of pointers from old to young objects.
 (not a problem if objects are immutable)
@@ -335,14 +334,13 @@ Every tuple carries one extra 64-bit word in front of it:
 +-----------+---------------------------+--------+-+
 |  unused   |       pointer mask        | length |1|
 +-----------+---------------------------+--------+-+
-```
+```  
 
 - **bit 0** --- 1 while the tuple has not been copied. When it is 0,
   the whole word is a forwarding pointer. (Addresses are 8-byte
   aligned, so their low bits are free.)
 - **bits 1--6** --- the length.
-- **bits 7--56** --- the pointer mask: bit *i* is 1 if element *i-7* is
-  itself (a pointer to) a tuple.
+- **bits 7--56** --- the pointer mask: bit *i* is 1 if element *i-7* is itself (a pointer to) a tuple. Il type checker serve solo per riconoscere pointer da non pointer (non bool da int ecc.)
 
 ```python
 tag = 1 | (len << 1) | (mask << 7)
@@ -467,7 +465,8 @@ begin:
     v
 ```
 
-where *bytes* is `8 * (n + 1)` --- the elements plus the tag.
+where *bytes* is `8 * (n + 1)` --- the elements plus the tag. Una domanda potrebbe essere, perchè non allochiamo prima e poi facciamo le altre cose? Perchè valutare uno degli elementi potrebbe allocare un'altra tupla e far scattare il gc. Se v fosse già stata allocata prima di valutare gli elementi, il collector troverebbe sull'heap (e sul root stack) una tupla con un tag già valido ma con il contenuto ancora non inizializzato: leggendo la pointer mask, scambierebbe dati casuali residui in memoria per puntatori validi, causando un crash.  
+Perché la parte dopo allocate è sicura? Perché nel momento in cui allocate viene eseguita, tutti gli elementi x0, ..., x(n-1) sono già stati ridotti a valori atomici: le istruzioni v[i] = xi sono semplici scritture in memoria (movq) che non richiedono nuovo spazio sull'heap e non possono quindi innescare una raccolta prima che la tupla sia completamente inizializzata.
 
 ### Reading that translation
 
@@ -635,7 +634,7 @@ A tuple value **is an address**. Assignment copies the address, so
 `t1` and `t2` are two names for one tuple; `t3` is a different tuple
 with equal elements.
 
-`is` compares addresses --- which is why it is one `cmpq`.
+`is` compares addresses --- which is why it is one `cmpq`. Se c'è immutability non cambia molto tra t1, t2 e t3 (e come se fossero interi semplici).
 
 ### What immutability buys
 
