@@ -84,6 +84,11 @@ Implement efficient tail calls as described in EoC 8.2.2
 
 ### closure optimisation (3p)
 
+Implement closure optimisation as described in lecture 8 (EoC 9.10), both parts:
+
+- escape analysis: global functions that do not escape are not closure-converted
+- known calls: a call through a variable known to hold a closure of a given function becomes a direct call
+
 ## Optimisations
 
 Note: tail call elimination is described in the functions section.

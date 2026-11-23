@@ -1,0 +1,6 @@
+from runtime import input_int
+
+a = input_int()
+b = input_int()
+c = input_int() + 1
+print(b*b - 4*a*c)
